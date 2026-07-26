@@ -198,7 +198,14 @@ const SearchBar = () => {
           <div className="sm:col-span-1">
             <DatePicker
               selected={checkIn}
-              onChange={(date) => setCheckIn(date as Date)}
+              onChange={(date) => {
+                const newCheckIn = date as Date;
+                setCheckIn(newCheckIn);
+                if (newCheckIn && checkOut && newCheckIn >= checkOut) {
+                  const nextDay = new Date(newCheckIn.getTime() + 86400000);
+                  setCheckOut(nextDay);
+                }
+              }}
               selectsStart
               startDate={checkIn}
               endDate={checkOut}
@@ -213,10 +220,10 @@ const SearchBar = () => {
             <DatePicker
               selected={checkOut}
               onChange={(date) => setCheckOut(date as Date)}
-              selectsStart
+              selectsEnd
               startDate={checkIn}
               endDate={checkOut}
-              minDate={minDate}
+              minDate={checkIn ? new Date(checkIn.getTime() + 86400000) : minDate}
               maxDate={maxDate}
               placeholderText="Check-out Date"
               className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-0 focus-visible:border-primary-500 disabled:cursor-not-allowed disabled:opacity-50"

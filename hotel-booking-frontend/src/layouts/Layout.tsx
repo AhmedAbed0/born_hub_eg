@@ -1,6 +1,9 @@
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import PageContainer from "../components/PageContainer";
+import BackToTop from "../components/BackToTop";
+import SocialProofToast from "../components/SocialProofToast";
+import TrustPartners from "../components/TrustPartners";
 import { useLocation } from "react-router-dom";
 
 interface Props {
@@ -23,7 +26,10 @@ const Layout = ({ children }: Props) => {
       ) : (
         <PageContainer className="py-8 flex-1">{children}</PageContainer>
       )}
+      <TrustPartners />
       <Footer />
+      <BackToTop />
+      <SocialProofToast />
     </div>
   );
 };

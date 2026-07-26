@@ -14,8 +14,6 @@ import {
   LogOut,
   Building2,
   Shield,
-  FileText,
-  Activity,
 } from "lucide-react";
 import useAppContext from "../hooks/useAppContext";
 import { goodbyeToast, getStoredDisplayName } from "../lib/toast-messages";
@@ -122,27 +120,7 @@ const UsernameMenu = () => {
             My Hotels
           </Link>
         </DropdownMenuItem>
-        {/* API links moved from MainNav — logged-in profile only */}
-        <DropdownMenuItem
-          onClick={handleMenuClick}
-          asChild
-          className={menuItemClass}
-        >
-          <Link to="/api-docs" className={linkRowClass}>
-            <FileText className="h-4 w-4" />
-            API Documentation
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={handleMenuClick}
-          asChild
-          className={menuItemClass}
-        >
-          <Link to="/api-status" className={linkRowClass}>
-            <Activity className="h-4 w-4" />
-            API Status
-          </Link>
-        </DropdownMenuItem>
+        {/* Separator before Logout */}
         <Separator className="my-2 bg-gray-200" />
         <DropdownMenuItem
           onSelect={(e) => {

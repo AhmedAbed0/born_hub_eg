@@ -6,7 +6,7 @@
  *
  * Destroys: User, Hotel, Booking, Review, Analytics collections.
  * Creates test@user.com / 12345678 as admin (for /admin + manual testing).
- * Populates every documented schema field for realistic demos.
+ * Populates every documented schema field with Arab world demo data in English script.
  */
 import "dotenv/config";
 import mongoose from "mongoose";
@@ -30,24 +30,26 @@ const daysFromNow = (n: number) => {
 
 const daysAgo = (n: number) => daysFromNow(-n);
 
-async function seed() {
+export async function seedData(disconnectAfter: boolean = true) {
   const uri = process.env.MONGODB_CONNECTION_STRING;
-  if (!uri) {
+  if (!uri && disconnectAfter) {
     console.error("Missing MONGODB_CONNECTION_STRING");
     process.exit(1);
   }
 
-  const wantsTls =
-    uri.includes("mongodb+srv://") ||
-    /[?&]tls=true/i.test(uri) ||
-    /[?&]ssl=true/i.test(uri);
+  if (disconnectAfter && uri) {
+    const wantsTls =
+      uri.includes("mongodb+srv://") ||
+      /[?&]tls=true/i.test(uri) ||
+      /[?&]ssl=true/i.test(uri);
 
-  await mongoose.connect(uri, {
-    ...(wantsTls
-      ? { tls: true, tlsAllowInvalidCertificates: false }
-      : {}),
-  });
-  console.log("Connected. Wiping demo collections…");
+    await mongoose.connect(uri, {
+      ...(wantsTls
+        ? { tls: true, tlsAllowInvalidCertificates: false }
+        : {}),
+    });
+  }
+  console.log("Wiping demo collections…");
 
   await Promise.all([
     Review.deleteMany({}),
@@ -57,26 +59,26 @@ async function seed() {
     User.deleteMany({}),
   ]);
 
-  console.log("Seeding users (all schema fields)…");
+  console.log("Seeding users (Arab names & English addresses)…");
   const admin = await new User({
     email: "test@user.com",
     password: "12345678",
-    firstName: "Test",
-    lastName: "Admin",
+    firstName: "Ahmed",
+    lastName: "Al-Arabi (Admin)",
     image: "https://i.pravatar.cc/150?u=admin",
     role: "admin",
-    phone: "+44 20 7946 0001",
+    phone: "+20 100 123 4567",
     address: {
-      street: "10 Downing Street",
-      city: "London",
-      state: "England",
-      country: "United Kingdom",
-      zipCode: "SW1A 2AA",
+      street: "Corniche El Nile St, Garden City",
+      city: "Cairo",
+      state: "Cairo",
+      country: "Egypt",
+      zipCode: "11511",
     },
     preferences: {
-      preferredDestinations: ["London", "Edinburgh", "Bath"],
+      preferredDestinations: ["Cairo", "Dubai", "Riyadh"],
       preferredHotelTypes: ["Boutique", "Luxury"],
-      budgetRange: { min: 100, max: 400 },
+      budgetRange: { min: 100, max: 500 },
     },
     totalBookings: 0,
     totalSpent: 0,
@@ -88,22 +90,22 @@ async function seed() {
   const owner = await new User({
     email: "owner@hotel.com",
     password: "12345678",
-    firstName: "Hotel",
-    lastName: "Owner",
+    firstName: "Mohamed",
+    lastName: "Al-Malik (Owner)",
     image: "https://i.pravatar.cc/150?u=owner",
     role: "hotel_owner",
-    phone: "+44 131 000 0002",
+    phone: "+971 50 987 6543",
     address: {
-      street: "42 Castle Wynd",
-      city: "Edinburgh",
-      state: "Scotland",
-      country: "United Kingdom",
-      zipCode: "EH1 2NG",
+      street: "Sheikh Zayed Road, Palm Jumeirah",
+      city: "Dubai",
+      state: "Dubai",
+      country: "United Arab Emirates",
+      zipCode: "00000",
     },
     preferences: {
-      preferredDestinations: ["Edinburgh", "Glasgow"],
-      preferredHotelTypes: ["Boutique", "Family"],
-      budgetRange: { min: 80, max: 250 },
+      preferredDestinations: ["Dubai", "Abu Dhabi", "Sharm El Sheikh"],
+      preferredHotelTypes: ["Luxury", "Resort"],
+      budgetRange: { min: 150, max: 800 },
     },
     totalBookings: 0,
     totalSpent: 0,
@@ -115,22 +117,22 @@ async function seed() {
   const guest = await new User({
     email: "guest@user.com",
     password: "12345678",
-    firstName: "Guest",
-    lastName: "Traveler",
+    firstName: "Omar",
+    lastName: "Al-Musafir (Guest)",
     image: "https://i.pravatar.cc/150?u=guest",
     role: "user",
-    phone: "+44 7700 900123",
+    phone: "+966 55 123 4567",
     address: {
-      street: "88 Quayside",
-      city: "Liverpool",
-      state: "England",
-      country: "United Kingdom",
-      zipCode: "L3 4AN",
+      street: "King Fahd Road, Olaya",
+      city: "Riyadh",
+      state: "Riyadh",
+      country: "Saudi Arabia",
+      zipCode: "12211",
     },
     preferences: {
-      preferredDestinations: ["London", "Liverpool", "Manchester"],
-      preferredHotelTypes: ["Budget", "Apartment"],
-      budgetRange: { min: 60, max: 200 },
+      preferredDestinations: ["Cairo", "Dubai", "Jeddah"],
+      preferredHotelTypes: ["Resort", "Apartment"],
+      budgetRange: { min: 80, max: 350 },
     },
     totalBookings: 0,
     totalSpent: 0,
@@ -139,215 +141,343 @@ async function seed() {
     isActive: true,
   }).save();
 
-  console.log("Seeding hotels (all schema fields)…");
+  console.log("Seeding hotels with Arab cities & English names…");
   const hotelA = await new Hotel({
     userId: owner.id,
-    name: "Thames View Boutique",
-    city: "London",
-    country: "United Kingdom",
-    description:
-      "A refined riverside boutique hotel with contemporary rooms and easy access to central London.",
+    name: "Nile Royal Hotel Cairo",
+    city: "Cairo",
+    country: "Egypt",
+    description: "Refined 5-star riverside hotel with panoramic Nile views, fine dining restaurants, and outdoor infinity pool in downtown Cairo.",
     type: ["Boutique", "Luxury"],
     adultCount: 2,
     childCount: 1,
-    facilities: ["Free WiFi", "Parking", "Spa", "Restaurant"],
+    facilities: ["Free WiFi", "Parking", "Spa", "Restaurant", "Nile View Pool"],
     pricePerNight: 180,
     starRating: 5,
     imageUrls: [IMG[0], IMG[1]],
     lastUpdated: new Date(),
     location: {
-      latitude: 51.5074,
-      longitude: -0.1278,
+      latitude: 30.0444,
+      longitude: 31.2357,
       address: {
-        street: "1 Embankment Place",
-        city: "London",
-        state: "England",
-        country: "United Kingdom",
-        zipCode: "WC2N 6NN",
+        street: "Corniche El Nile, Garden City",
+        city: "Cairo",
+        state: "Cairo",
+        country: "Egypt",
+        zipCode: "11511",
       },
     },
     contact: {
-      phone: "+44 20 0000 0001",
-      email: "stay@thamesview.example",
-      website: "https://thamesview.example",
+      phone: "+20 2 2790 0000",
+      email: "info@nileroyalcairo.com",
+      website: "https://nileroyalcairo.example",
     },
     policies: {
       checkInTime: "15:00",
-      checkOutTime: "11:00",
-      cancellationPolicy: "Free cancel 48h before check-in",
-      petPolicy: "Pets welcome on request (£25/night)",
-      smokingPolicy: "Non-smoking property",
+      checkOutTime: "12:00",
+      cancellationPolicy: "Free cancellation up to 48h before check-in",
+      petPolicy: "No pets allowed",
+      smokingPolicy: "Non-smoking rooms",
     },
     amenities: {
       parking: true,
       wifi: true,
-      pool: false,
+      pool: true,
       gym: true,
       spa: true,
       restaurant: true,
       bar: true,
-      airportShuttle: false,
+      airportShuttle: true,
       businessCenter: true,
     },
     totalBookings: 0,
     totalRevenue: 0,
-    averageRating: 0,
-    reviewCount: 0,
-    occupancyRate: 72,
+    averageRating: 4.9,
+    reviewCount: 12,
+    occupancyRate: 85,
     isActive: true,
     isFeatured: true,
   }).save();
 
   const hotelB = await new Hotel({
     userId: admin.id,
-    name: "Edinburgh Castle Inn",
-    city: "Edinburgh",
-    country: "United Kingdom",
-    description:
-      "Historic comfort near the Royal Mile — ideal for leisure and short business trips.",
-    type: ["Budget", "Family"],
+    name: "The Palm Dubai Resort",
+    city: "Dubai",
+    country: "United Arab Emirates",
+    description: "Ultra-luxury resort located on the iconic Palm Jumeirah crescent featuring private beaches, Michelin-starred chefs, and underwater suites.",
+    type: ["Luxury", "Resort"],
     adultCount: 4,
     childCount: 2,
-    facilities: ["Free WiFi", "Family Rooms", "Non-Smoking Rooms"],
-    pricePerNight: 95,
-    starRating: 3,
+    facilities: ["Free WiFi", "Private Beach", "Spa", "Valet Parking", "Infinity Pool"],
+    pricePerNight: 320,
+    starRating: 5,
     imageUrls: [IMG[2], IMG[0]],
     lastUpdated: new Date(),
     location: {
-      latitude: 55.9533,
-      longitude: -3.1883,
+      latitude: 25.1124,
+      longitude: 55.139,
       address: {
-        street: "15 Castlehill",
-        city: "Edinburgh",
-        state: "Scotland",
-        country: "United Kingdom",
-        zipCode: "EH1 2NG",
+        street: "Crescent Road, Palm Jumeirah",
+        city: "Dubai",
+        state: "Dubai",
+        country: "United Arab Emirates",
+        zipCode: "00000",
       },
     },
     contact: {
-      phone: "+44 131 000 0003",
-      email: "hello@castleinn.example",
-      website: "https://castleinn.example",
+      phone: "+971 4 426 0000",
+      email: "stay@palmdubai.com",
+      website: "https://palmdubai.example",
     },
     policies: {
-      checkInTime: "14:00",
-      checkOutTime: "10:00",
-      cancellationPolicy: "Free cancel 24h before check-in",
-      petPolicy: "No pets",
-      smokingPolicy: "Smoking area outdoors only",
+      checkInTime: "15:00",
+      checkOutTime: "12:00",
+      cancellationPolicy: "Free cancellation 24h before check-in",
+      petPolicy: "Small pets welcome",
+      smokingPolicy: "Designated smoking areas",
     },
     amenities: {
-      parking: false,
+      parking: true,
       wifi: true,
-      pool: false,
-      gym: false,
-      spa: false,
+      pool: true,
+      gym: true,
+      spa: true,
       restaurant: true,
-      bar: false,
+      bar: true,
       airportShuttle: true,
-      businessCenter: false,
+      businessCenter: true,
     },
     totalBookings: 0,
     totalRevenue: 0,
-    averageRating: 0,
-    reviewCount: 0,
-    occupancyRate: 65,
+    averageRating: 4.8,
+    reviewCount: 25,
+    occupancyRate: 90,
     isActive: true,
-    isFeatured: false,
+    isFeatured: true,
   }).save();
 
   const hotelC = await new Hotel({
     userId: owner.id,
-    name: "Quiet Quayside Suites",
-    city: "Liverpool",
-    country: "United Kingdom",
-    description: "Spacious suites on the waterfront with kitchenettes.",
-    type: ["Apartment"],
+    name: "Riyadh Oasis Hotel",
+    city: "Riyadh",
+    country: "Saudi Arabia",
+    description: "Modern high-rise hotel in Riyadh's Olaya business district combining Arabian hospitality with executive luxury.",
+    type: ["Modern", "Business"],
     adultCount: 3,
     childCount: 2,
-    facilities: ["Free WiFi", "Parking", "Airport Shuttle", "Kitchenette"],
-    pricePerNight: 120,
+    facilities: ["Free WiFi", "Parking", "Executive Lounge", "Business Center"],
+    pricePerNight: 160,
     starRating: 4,
     imageUrls: [IMG[1], IMG[2]],
     lastUpdated: new Date(),
     location: {
-      latitude: 53.4084,
-      longitude: -2.9916,
+      latitude: 24.7136,
+      longitude: 46.6753,
       address: {
-        street: "20 Princes Dock",
-        city: "Liverpool",
-        state: "England",
-        country: "United Kingdom",
-        zipCode: "L3 1DL",
+        street: "King Fahd Road, Olaya",
+        city: "Riyadh",
+        state: "Riyadh",
+        country: "Saudi Arabia",
+        zipCode: "12211",
       },
     },
     contact: {
-      phone: "+44 151 000 0004",
-      email: "stay@quayside.example",
-      website: "https://quayside.example",
+      phone: "+966 11 465 0000",
+      email: "info@riyadhoasis.com",
+      website: "https://riyadhoasis.example",
     },
     policies: {
-      checkInTime: "16:00",
-      checkOutTime: "11:00",
-      cancellationPolicy: "Non-refundable within 7 days",
-      petPolicy: "Small pets allowed",
-      smokingPolicy: "Strictly non-smoking",
+      checkInTime: "14:00",
+      checkOutTime: "12:00",
+      cancellationPolicy: "Free cancellation up to 24h before",
+      petPolicy: "No pets allowed",
+      smokingPolicy: "100% non-smoking property",
     },
     amenities: {
       parking: true,
       wifi: true,
       pool: false,
-      gym: false,
+      gym: true,
       spa: false,
-      restaurant: false,
+      restaurant: true,
       bar: false,
       airportShuttle: true,
-      businessCenter: false,
+      businessCenter: true,
     },
     totalBookings: 0,
     totalRevenue: 0,
-    averageRating: 0,
-    reviewCount: 0,
-    occupancyRate: 40,
-    isActive: false,
-    isFeatured: false,
+    averageRating: 4.7,
+    reviewCount: 18,
+    occupancyRate: 75,
+    isActive: true,
+    isFeatured: true,
   }).save();
 
-  console.log("Seeding bookings (status × paymentStatus matrix + all fields)…");
-  const bookingSpecs: Array<{
-    hotelId: string;
-    userId: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    adultCount: number;
-    childCount: number;
-    status: "pending" | "confirmed" | "cancelled" | "completed" | "refunded";
-    paymentStatus: "pending" | "paid" | "failed" | "refunded";
-    paymentMethod?: string;
-    specialRequests?: string;
-    checkIn: Date;
-    checkOut: Date;
-    createdAt: Date;
-    totalCost: number;
-    stripePaymentIntentId?: string;
-    cancellationReason?: string;
-    refundAmount?: number;
-  }> = [
+  const hotel1 = await new Hotel({
+    userId: owner.id,
+    name: "Sharm El Sheikh Beach Resort",
+    city: "Sharm El Sheikh",
+    country: "Egypt",
+    description: "Breathtaking Red Sea beachfront resort featuring private waterparks, world-class scuba diving reefs, and luxury family villas.",
+    type: ["Resort", "Beach Front"],
+    adultCount: 4,
+    childCount: 2,
+    facilities: ["Free WiFi", "Private Beach", "Aqua Park", "Spa", "All Inclusive Restaurant"],
+    pricePerNight: 140,
+    starRating: 5,
+    imageUrls: ["https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800", "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800"],
+    lastUpdated: new Date(),
+    location: {
+      latitude: 27.9158,
+      longitude: 34.3299,
+      address: { street: "Naama Bay, Promenade", city: "Sharm El Sheikh", state: "South Sinai", country: "Egypt", zipCode: "46619" },
+    },
+    contact: { phone: "+20 69 360 0000", email: "booking@sharmresort.com", website: "https://sharmresort.example" },
+    policies: { checkInTime: "14:00", checkOutTime: "12:00", cancellationPolicy: "Free cancellation 48h before", petPolicy: "No pets allowed", smokingPolicy: "Outdoor smoking allowed" },
+    amenities: { parking: true, wifi: true, pool: true, gym: true, spa: true, restaurant: true, bar: true, airportShuttle: true, businessCenter: false },
+    totalBookings: 0, totalRevenue: 0, averageRating: 4.9, reviewCount: 32, occupancyRate: 88, isActive: true, isFeatured: true,
+  }).save();
+
+  const hotel2 = await new Hotel({
+    userId: admin.id,
+    name: "Jeddah Corniche Royal Hotel",
+    city: "Jeddah",
+    country: "Saudi Arabia",
+    description: "Stunning hotel on Jeddah's iconic seaside corniche near King Fahd Fountain, featuring sea-view balconies and fresh seafood dining.",
+    type: ["Luxury", "Boutique"],
+    adultCount: 3,
+    childCount: 1,
+    facilities: ["Free WiFi", "Sea View", "Parking", "Restaurant", "Fitness Center"],
+    pricePerNight: 210,
+    starRating: 5,
+    imageUrls: ["https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800", "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800"],
+    lastUpdated: new Date(),
+    location: {
+      latitude: 21.5433,
+      longitude: 39.1728,
+      address: { street: "Corniche Road, Al-Shati District", city: "Jeddah", state: "Makkah Region", country: "Saudi Arabia", zipCode: "23412" },
+    },
+    contact: { phone: "+966 12 607 0000", email: "info@jeddahcorniche.com", website: "https://jeddahcorniche.example" },
+    policies: { checkInTime: "15:00", checkOutTime: "12:00", cancellationPolicy: "Free cancellation 24h before", petPolicy: "No pets", smokingPolicy: "Non-smoking rooms" },
+    amenities: { parking: true, wifi: true, pool: true, gym: true, spa: true, restaurant: true, bar: false, airportShuttle: true, businessCenter: true },
+    totalBookings: 0, totalRevenue: 0, averageRating: 4.8, reviewCount: 22, occupancyRate: 82, isActive: true, isFeatured: true,
+  }).save();
+
+  const hotel3 = await new Hotel({
+    userId: owner.id,
+    name: "Hurghada Sunset Resort",
+    city: "Hurghada",
+    country: "Egypt",
+    description: "Vibrant Red Sea coastal resort equipped with lagoons, pristine sandy beaches, and diving excursions.",
+    type: ["Resort", "Beach Front"],
+    adultCount: 4,
+    childCount: 2,
+    facilities: ["Free WiFi", "Beach Access", "Pool", "Diving Center", "Restaurant"],
+    pricePerNight: 110,
+    starRating: 4,
+    imageUrls: ["https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800", "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800"],
+    lastUpdated: new Date(),
+    location: {
+      latitude: 27.2579,
+      longitude: 33.8116,
+      address: { street: "Touristic Promenade", city: "Hurghada", state: "Red Sea", country: "Egypt", zipCode: "84511" },
+    },
+    contact: { phone: "+20 65 344 0000", email: "res@hurghadasunset.com", website: "https://hurghadasunset.example" },
+    policies: { checkInTime: "14:00", checkOutTime: "11:00", cancellationPolicy: "Flexible cancellation", petPolicy: "Pets allowed", smokingPolicy: "Designated areas" },
+    amenities: { parking: true, wifi: true, pool: true, gym: false, spa: true, restaurant: true, bar: true, airportShuttle: true, businessCenter: false },
+    totalBookings: 0, totalRevenue: 0, averageRating: 4.6, reviewCount: 19, occupancyRate: 78, isActive: true, isFeatured: false,
+  }).save();
+
+  const hotel4 = await new Hotel({
+    userId: owner.id,
+    name: "Etihad Towers Hotel Abu Dhabi",
+    city: "Abu Dhabi",
+    country: "United Arab Emirates",
+    description: "Iconic landmark hotel with floor-to-ceiling panoramic views over Abu Dhabi's Corniche and Arabian Gulf.",
+    type: ["Luxury", "Business"],
+    adultCount: 2,
+    childCount: 1,
+    facilities: ["Free WiFi", "Panoramic Views", "Luxury Spa", "Fine Dining"],
+    pricePerNight: 290,
+    starRating: 5,
+    imageUrls: ["https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=800", "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800"],
+    lastUpdated: new Date(),
+    location: {
+      latitude: 24.4539,
+      longitude: 54.3773,
+      address: { street: "West Corniche Road", city: "Abu Dhabi", state: "Abu Dhabi", country: "United Arab Emirates", zipCode: "00000" },
+    },
+    contact: { phone: "+971 2 811 5555", email: "stay@etihadtowers.com", website: "https://etihadtowers.example" },
+    policies: { checkInTime: "15:00", checkOutTime: "12:00", cancellationPolicy: "Free cancellation up to 48h", petPolicy: "No pets", smokingPolicy: "Non-smoking" },
+    amenities: { parking: true, wifi: true, pool: true, gym: true, spa: true, restaurant: true, bar: true, airportShuttle: true, businessCenter: true },
+    totalBookings: 0, totalRevenue: 0, averageRating: 4.9, reviewCount: 28, occupancyRate: 85, isActive: true, isFeatured: true,
+  }).save();
+
+  const hotel5 = await new Hotel({
+    userId: admin.id,
+    name: "Montaza Palace Hotel Alexandria",
+    city: "Alexandria",
+    country: "Egypt",
+    description: "Classic historic hotel adjacent to Alexandria's famous Montaza Palace and Gardens overlooking the Mediterranean Sea.",
+    type: ["Historic", "Boutique"],
+    adultCount: 2,
+    childCount: 1,
+    facilities: ["Free WiFi", "Garden Access", "Sea View", "Restaurant"],
+    pricePerNight: 130,
+    starRating: 4,
+    imageUrls: ["https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800", "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800"],
+    lastUpdated: new Date(),
+    location: {
+      latitude: 31.2882,
+      longitude: 30.0163,
+      address: { street: "El-Geish Road, Montaza Gardens", city: "Alexandria", state: "Alexandria", country: "Egypt", zipCode: "21500" },
+    },
+    contact: { phone: "+20 3 548 0000", email: "info@montazapalace.com", website: "https://montazapalace.example" },
+    policies: { checkInTime: "14:00", checkOutTime: "12:00", cancellationPolicy: "Free cancellation 24h before", petPolicy: "No pets", smokingPolicy: "Designated areas" },
+    amenities: { parking: true, wifi: true, pool: false, gym: true, spa: false, restaurant: true, bar: false, airportShuttle: true, businessCenter: true },
+    totalBookings: 0, totalRevenue: 0, averageRating: 4.7, reviewCount: 21, occupancyRate: 74, isActive: true, isFeatured: false,
+  }).save();
+
+  const hotel6 = await new Hotel({
+    userId: owner.id,
+    name: "The Pearl Doha Resort",
+    city: "Doha",
+    country: "Qatar",
+    description: "Modern resort on Qatar's man-made island featuring private yacht marinas, luxury shopping, and Mediterranean dining.",
+    type: ["Luxury", "Resort"],
+    adultCount: 3,
+    childCount: 2,
+    facilities: ["Free WiFi", "Marina Access", "Spa", "Private Beach", "Pool"],
+    pricePerNight: 270,
+    starRating: 5,
+    imageUrls: ["https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800", "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800"],
+    lastUpdated: new Date(),
+    location: {
+      latitude: 25.3712,
+      longitude: 51.5476,
+      address: { street: "The Pearl Island, Porto Arabia", city: "Doha", state: "Doha", country: "Qatar", zipCode: "00000" },
+    },
+    contact: { phone: "+974 4 495 3888", email: "info@pearldoha.com", website: "https://pearldoha.example" },
+    policies: { checkInTime: "15:00", checkOutTime: "12:00", cancellationPolicy: "Free cancellation 48h before", petPolicy: "Pets welcome", smokingPolicy: "Non-smoking" },
+    amenities: { parking: true, wifi: true, pool: true, gym: true, spa: true, restaurant: true, bar: true, airportShuttle: true, businessCenter: true },
+    totalBookings: 0, totalRevenue: 0, averageRating: 4.9, reviewCount: 35, occupancyRate: 87, isActive: true, isFeatured: true,
+  }).save();
+
+  console.log("Seeding bookings with Arab names & English details…");
+  const bookingSpecs = [
     {
       hotelId: hotelA.id,
       userId: guest.id,
-      firstName: "Guest",
-      lastName: "Traveler",
+      firstName: "Omar",
+      lastName: "Al-Musafir",
       email: "guest@user.com",
-      phone: "+44 7700 900123",
+      phone: "+966 55 123 4567",
       adultCount: 2,
       childCount: 1,
-      status: "confirmed",
-      paymentStatus: "paid",
+      status: "confirmed" as const,
+      paymentStatus: "paid" as const,
       paymentMethod: "card",
-      specialRequests: "High floor with river view if available",
+      specialRequests: "High floor with direct river Nile view if possible",
       checkIn: daysFromNow(14),
       checkOut: daysFromNow(17),
       createdAt: daysAgo(2),
@@ -355,139 +485,42 @@ async function seed() {
       stripePaymentIntentId: "pi_seed_upcoming_paid",
     },
     {
-      hotelId: hotelA.id,
+      hotelId: hotelB.id,
       userId: guest.id,
-      firstName: "Guest",
-      lastName: "Traveler",
-      email: "guest@user.com",
-      phone: "+44 7700 900123",
+      firstName: "Sara",
+      lastName: "Mahmoud",
+      email: "sara@user.com",
+      phone: "+966 50 987 6543",
       adultCount: 2,
       childCount: 0,
-      status: "pending",
-      paymentStatus: "pending",
+      status: "confirmed" as const,
+      paymentStatus: "paid" as const,
       paymentMethod: "card",
       specialRequests: "Late check-in after 21:00",
-      checkIn: daysFromNow(30),
-      checkOut: daysFromNow(32),
-      createdAt: daysAgo(1),
-      totalCost: 360,
-    },
-    {
-      hotelId: hotelB.id,
-      userId: guest.id,
-      firstName: "Guest",
-      lastName: "Traveler",
-      email: "guest@user.com",
-      phone: "+44 7700 900123",
-      adultCount: 2,
-      childCount: 0,
-      status: "cancelled",
-      paymentStatus: "refunded",
-      paymentMethod: "card",
-      specialRequests: "",
-      checkIn: daysFromNow(10),
-      checkOut: daysFromNow(12),
-      createdAt: daysAgo(5),
-      totalCost: 190,
-      stripePaymentIntentId: "pi_seed_cancelled_refunded",
-      cancellationReason: "Change of plans",
-      refundAmount: 190,
-    },
-    {
-      hotelId: hotelB.id,
-      userId: guest.id,
-      firstName: "Guest",
-      lastName: "Traveler",
-      email: "guest@user.com",
-      phone: "+44 7700 900123",
-      adultCount: 3,
-      childCount: 1,
-      status: "cancelled",
-      paymentStatus: "paid",
-      paymentMethod: "card",
-      specialRequests: "Cot for toddler",
       checkIn: daysFromNow(20),
-      checkOut: daysFromNow(22),
-      createdAt: daysAgo(8),
-      totalCost: 190,
-      cancellationReason: "Legacy cancel without PI",
-    },
-    {
-      hotelId: hotelA.id,
-      userId: guest.id,
-      firstName: "Guest",
-      lastName: "Traveler",
-      email: "guest@user.com",
-      phone: "+44 7700 900123",
-      adultCount: 2,
-      childCount: 0,
-      status: "completed",
-      paymentStatus: "paid",
-      paymentMethod: "card",
-      specialRequests: "Quiet room away from lift",
-      checkIn: daysAgo(20),
-      checkOut: daysAgo(17),
-      createdAt: daysAgo(40),
-      totalCost: 540,
-      stripePaymentIntentId: "pi_seed_completed_paid",
-    },
-    {
-      hotelId: hotelB.id,
-      userId: admin.id,
-      firstName: "Test",
-      lastName: "Admin",
-      email: "test@user.com",
-      phone: "+44 20 7946 0001",
-      adultCount: 1,
-      childCount: 0,
-      status: "completed",
-      paymentStatus: "paid",
-      paymentMethod: "card",
-      specialRequests: "Early check-in if possible",
-      checkIn: daysAgo(10),
-      checkOut: daysAgo(8),
-      createdAt: daysAgo(25),
-      totalCost: 190,
-      stripePaymentIntentId: "pi_seed_admin_completed",
-    },
-    {
-      hotelId: hotelA.id,
-      userId: guest.id,
-      firstName: "Guest",
-      lastName: "Traveler",
-      email: "guest@user.com",
-      phone: "+44 7700 900123",
-      adultCount: 2,
-      childCount: 0,
-      status: "refunded",
-      paymentStatus: "refunded",
-      paymentMethod: "card",
-      specialRequests: "",
-      checkIn: daysAgo(5),
-      checkOut: daysAgo(3),
-      createdAt: daysAgo(15),
-      totalCost: 360,
-      refundAmount: 360,
-      stripePaymentIntentId: "pi_seed_status_refunded",
-      cancellationReason: "Full refund issued",
+      checkOut: daysFromNow(23),
+      createdAt: daysAgo(1),
+      totalCost: 960,
+      stripePaymentIntentId: "pi_seed_dubai_paid",
     },
     {
       hotelId: hotelC.id,
-      userId: guest.id,
-      firstName: "Guest",
-      lastName: "Traveler",
-      email: "guest@user.com",
-      phone: "+44 7700 900123",
-      adultCount: 2,
-      childCount: 1,
-      status: "pending",
-      paymentStatus: "failed",
+      userId: admin.id,
+      firstName: "Ahmed",
+      lastName: "Al-Arabi",
+      email: "test@user.com",
+      phone: "+20 100 123 4567",
+      adultCount: 1,
+      childCount: 0,
+      status: "completed" as const,
+      paymentStatus: "paid" as const,
       paymentMethod: "card",
-      specialRequests: "Accessible room",
-      checkIn: daysFromNow(7),
-      checkOut: daysFromNow(9),
-      createdAt: daysAgo(0),
-      totalCost: 240,
+      specialRequests: "Quiet room away from elevator",
+      checkIn: daysAgo(10),
+      checkOut: daysAgo(8),
+      createdAt: daysAgo(25),
+      totalCost: 320,
+      stripePaymentIntentId: "pi_seed_admin_completed",
     },
   ];
 
@@ -510,8 +543,6 @@ async function seed() {
       paymentMethod: spec.paymentMethod,
       specialRequests: spec.specialRequests || "",
       stripePaymentIntentId: spec.stripePaymentIntentId,
-      cancellationReason: spec.cancellationReason,
-      refundAmount: spec.refundAmount || 0,
       createdAt: spec.createdAt,
       updatedAt: spec.createdAt,
     }).save();
@@ -524,100 +555,84 @@ async function seed() {
       b.status !== "cancelled" &&
       b.status !== "refunded"
   );
-  for (const hotel of [hotelA, hotelB, hotelC]) {
+  for (const hotel of [hotelA, hotelB, hotelC, hotel1, hotel2, hotel3, hotel4, hotel5, hotel6]) {
     const mine = paidActive.filter((b) => b.hotelId === hotel.id);
     hotel.totalBookings = mine.length;
     hotel.totalRevenue = mine.reduce((s, b) => s + (b.totalCost || 0), 0);
     await hotel.save();
   }
 
-  console.log("Seeding reviews (all schema fields)…");
-  const completed = savedBookings.filter((b) => b.status === "completed");
-  if (completed[0]) {
-    await new Review({
-      userId: completed[0].userId,
-      hotelId: completed[0].hotelId,
-      bookingId: completed[0].id,
-      rating: 5,
-      comment: "Wonderful stay — staff were exceptional and rooms spotless.",
-      categories: {
-        cleanliness: 5,
-        service: 5,
-        location: 5,
-        value: 4,
-        amenities: 5,
-      },
-      isVerified: true,
-      helpfulCount: 12,
-    }).save();
-  }
-  if (completed[1]) {
-    await new Review({
-      userId: completed[1].userId,
-      hotelId: completed[1].hotelId,
-      bookingId: completed[1].id,
-      rating: 4,
-      comment: "Solid value near the attractions. Breakfast could be stronger.",
-      categories: {
-        cleanliness: 4,
-        service: 4,
-        location: 5,
-        value: 4,
-        amenities: 3,
-      },
-      isVerified: false,
-      helpfulCount: 3,
-    }).save();
-  }
+  console.log("Seeding English reviews for Arab hotels…");
+  await new Review({
+    userId: guest.id,
+    hotelId: hotelA.id,
+    bookingId: savedBookings[0]?.id,
+    rating: 5,
+    comment: "Exceptional stay with breathtaking Nile views! Staff were extremely helpful and clean.",
+    categories: {
+      cleanliness: 5,
+      service: 5,
+      location: 5,
+      value: 5,
+      amenities: 5,
+    },
+    isVerified: true,
+    helpfulCount: 15,
+  }).save();
 
-  for (const hotel of [hotelA, hotelB]) {
-    const reviews = await Review.find({ hotelId: hotel.id });
-    if (reviews.length) {
-      hotel.reviewCount = reviews.length;
-      hotel.averageRating =
-        Math.round(
-          (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10
-        ) / 10;
-      await hotel.save();
-    }
-  }
+  await new Review({
+    userId: admin.id,
+    hotelId: hotelB.id,
+    bookingId: savedBookings[1]?.id,
+    rating: 5,
+    comment: "Ultra-luxurious resort on Palm Jumeirah. The private beach and service exceeded expectations.",
+    categories: {
+      cleanliness: 5,
+      service: 5,
+      location: 5,
+      value: 4,
+      amenities: 5,
+    },
+    isVerified: true,
+    helpfulCount: 9,
+  }).save();
 
-  console.log("Seeding analytics snapshot (full metrics + breakdown)…");
+  console.log("Seeding analytics snapshot (Arab destinations in English)…");
   await Analytics.create({
     date: new Date(),
     metrics: {
       totalBookings: savedBookings.length,
       totalRevenue: paidActive.reduce((s, b) => s + (b.totalCost || 0), 0),
       totalUsers: 3,
-      totalHotels: 3,
-      averageBookingValue: 250,
-      conversionRate: 62.5,
-      cancellationRate: 25,
-      averageRating: 4.5,
+      totalHotels: 9,
+      averageBookingValue: 350,
+      conversionRate: 75.0,
+      cancellationRate: 10,
+      averageRating: 4.8,
     },
     breakdown: {
       byStatus: {
-        pending: 2,
-        confirmed: 1,
-        cancelled: 2,
-        completed: 2,
-        refunded: 1,
+        pending: 0,
+        confirmed: 2,
+        cancelled: 0,
+        completed: 1,
+        refunded: 0,
       },
       byPaymentStatus: {
-        pending: 1,
-        paid: 4,
-        failed: 1,
-        refunded: 2,
+        pending: 0,
+        paid: 3,
+        failed: 0,
+        refunded: 0,
       },
       byDestination: [
-        { city: "London", bookings: 4, revenue: 1800 },
-        { city: "Edinburgh", bookings: 3, revenue: 570 },
-        { city: "Liverpool", bookings: 1, revenue: 0 },
+        { city: "Cairo", bookings: 1, revenue: 540 },
+        { city: "Dubai", bookings: 1, revenue: 960 },
+        { city: "Riyadh", bookings: 1, revenue: 320 },
       ],
       byHotelType: [
-        { type: "Boutique", bookings: 4, revenue: 1800 },
-        { type: "Budget", bookings: 3, revenue: 570 },
-        { type: "Apartment", bookings: 1, revenue: 0 },
+        { type: "Boutique", bookings: 1, revenue: 540 },
+        { type: "Luxury", bookings: 1, revenue: 960 },
+        { type: "Business", bookings: 1, revenue: 320 },
       ],
     },
   });
@@ -638,10 +653,14 @@ async function seed() {
   console.log("  Admin login: test@user.com / 12345678 (role=admin)");
   console.log("  Owner login: owner@hotel.com / 12345678");
   console.log("  Guest login: guest@user.com / 12345678");
-  await mongoose.disconnect();
+  if (disconnectAfter) {
+    await mongoose.disconnect();
+  }
 }
 
-seed().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  seedData(true).catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

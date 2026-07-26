@@ -36,10 +36,13 @@ export const SearchContextProvider = ({
     () =>
       new Date(sessionStorage.getItem("checkIn") || new Date().toISOString())
   );
-  const [checkOut, setCheckOut] = useState<Date>(
-    () =>
-      new Date(sessionStorage.getItem("checkOut") || new Date().toISOString())
-  );
+  const [checkOut, setCheckOut] = useState<Date>(() => {
+    const saved = sessionStorage.getItem("checkOut");
+    if (saved) return new Date(saved);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow;
+  });
   const [adultCount, setAdultCount] = useState<number>(() =>
     parseInt(sessionStorage.getItem("adultCount") || "1")
   );
@@ -80,9 +83,12 @@ export const SearchContextProvider = ({
   };
 
   const clearSearchValues = () => {
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
     setDestination("");
-    setCheckIn(new Date());
-    setCheckOut(new Date());
+    setCheckIn(today);
+    setCheckOut(tomorrow);
     setAdultCount(1);
     setChildCount(0);
     setHotelId("");

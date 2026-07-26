@@ -161,12 +161,12 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-primary-300" />
-                <span className="text-gray-300">+1 (555) 123-4567</span>
+                <span className="text-gray-300">+20 2 2790 0000 / +971 4 123 4567</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="w-5 h-5 text-primary-300" />
                 <span className="text-gray-300">
-                  123 Travel St, Tourism City
+                  Corniche El Nile St, Cairo, Egypt
                 </span>
               </div>
             </div>
@@ -174,10 +174,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-primary-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-300 text-sm">
-            &copy; {new Date().getFullYear()}. All rights reserved.
-          </p>
+        <div className="border-t border-primary-700 mt-8 pt-8 flex flex-col md:flex-row justify-end items-center">
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a
               href="#"

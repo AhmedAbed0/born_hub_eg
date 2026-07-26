@@ -12,8 +12,7 @@ const LatestDestinationCard = ({ hotel }: Props) => {
   return (
     <Link
       to={`/detail/${hotel._id}`}
-      className="group relative cursor-pointer overflow-hidden rounded-2xl shadow-soft transition-all duration-300 hover:shadow-large bg-white flex flex-col w-full h-[350px] border border-gray-10"
-      style={{ minWidth: 320, maxWidth: 500 }}
+      className="group relative cursor-pointer overflow-hidden rounded-2xl shadow-soft transition-all duration-300 hover:shadow-large bg-white flex flex-col w-full min-w-[280px] max-w-[500px] h-[350px] border border-gray-10"
     >
       <div className="w-full h-full relative">
         <SafeImage

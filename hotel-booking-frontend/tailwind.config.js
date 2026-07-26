@@ -78,6 +78,8 @@ export default {
         "bounce-gentle": "bounceGentle 2s infinite",
         /* Landing/auth stair-step reveal (see StaggerItem) */
         "stagger-in": "staggerIn 0.45s ease-in-out both",
+        /* Promo banner shimmer sweep */
+        shimmer: "shimmer 3s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {
@@ -95,6 +97,10 @@ export default {
         staggerIn: {
           "0%": { opacity: "0", transform: "translateY(12px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
         },
       },
     },

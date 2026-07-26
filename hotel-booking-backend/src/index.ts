@@ -23,6 +23,8 @@ import morgan from "morgan";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
 
+import { seedData } from "./scripts/seed";
+
 // Environment Variables Validation
 const requiredEnvVars = [
   "MONGODB_CONNECTION_STRING",
@@ -56,11 +58,28 @@ cloudinary.config({
 
 console.log("☁️  Cloudinary configured successfully");
 
+let mongoMemoryInstance: any = null;
+
 // MongoDB Connection with Error Handling + TLS for Atlas / tls=true URIs
 const connectDB = async () => {
   try {
     console.log("📡 Attempting to connect to MongoDB...");
-    const uri = process.env.MONGODB_CONNECTION_STRING as string;
+    let uri = process.env.MONGODB_CONNECTION_STRING as string;
+    let isMemoryServer = false;
+
+    if (
+      uri === "mongodb-memory-server" ||
+      uri.includes("your_mongodb_connection_string") ||
+      !uri
+    ) {
+      console.log("⚡ Launching in-memory MongoDB instance...");
+      const { MongoMemoryServer } = require("mongodb-memory-server");
+      mongoMemoryInstance = await MongoMemoryServer.create();
+      uri = mongoMemoryInstance.getUri();
+      isMemoryServer = true;
+      console.log(`✅ In-memory MongoDB running at ${uri}`);
+    }
+
     const wantsTls =
       uri.includes("mongodb+srv://") ||
       /[?&]tls=true/i.test(uri) ||
@@ -78,6 +97,12 @@ const connectDB = async () => {
     console.log(`📦 Database: ${mongoose.connection.db.databaseName}`);
     if (wantsTls) {
       console.log("🔒 MongoDB TLS enabled");
+    }
+
+    if (isMemoryServer) {
+      console.log("🌱 Auto-seeding initial demo data into in-memory DB...");
+      await seedData(false);
+      console.log("✅ Initial demo data seeded successfully!");
     }
   } catch (error) {
     console.error("❌ MongoDB connection error:", error);

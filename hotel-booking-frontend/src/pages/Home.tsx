@@ -4,6 +4,11 @@ import LatestDestinationCard from "../components/LastestDestinationCard";
 import Hero from "../components/Hero";
 import PageContainer from "../components/PageContainer";
 import { StaggerItem, StaggerScope } from "../components/ui/stagger";
+import PromoBanner from "../components/PromoBanner";
+import StatsCounter from "../components/StatsCounter";
+import WhyChooseUs from "../components/WhyChooseUs";
+import TestimonialsSection from "../components/TestimonialsSection";
+import NewsletterSection from "../components/NewsletterSection";
 
 /** Match LatestDestinationCard height so footer does not jump while hotels load */
 const DEST_SKELETON_COUNT = 3;
@@ -19,8 +24,14 @@ const Home = () => {
 
   return (
     <>
+      {/* Promo banner — dismissible, above hero */}
+      <PromoBanner />
+
       {/* Hero paints blue bg immediately; its own StaggerItems animate copy/card */}
       <Hero onSearch={handleSearch} />
+
+      {/* Animated stats counter — counts up on scroll */}
+      <StatsCounter />
 
       <PageContainer className="py-6">
         <StaggerScope resetKey="home-destinations">
@@ -50,6 +61,15 @@ const Home = () => {
           </div>
         </StaggerScope>
       </PageContainer>
+
+      {/* Why Choose Us — feature highlights */}
+      <WhyChooseUs />
+
+      {/* Testimonials carousel */}
+      <TestimonialsSection />
+
+      {/* Newsletter subscription */}
+      <NewsletterSection />
     </>
   );
 };

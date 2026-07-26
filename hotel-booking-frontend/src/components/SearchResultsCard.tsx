@@ -129,7 +129,7 @@ const SearchResultsCard = ({ hotel }: Props) => {
 
             {/* Hotel Stats */}
             <div className="flex items-center space-x-6 text-sm text-gray-600">
-              {hotel.totalBookings && (
+              {!!hotel.totalBookings && hotel.totalBookings > 0 && (
                 <div className="flex items-center space-x-1">
                   <Users className="w-4 h-4" />
                   <span>{hotel.totalBookings} bookings</span>

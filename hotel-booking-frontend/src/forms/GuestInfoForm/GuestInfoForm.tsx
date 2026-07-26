@@ -190,7 +190,14 @@ const GuestInfoForm = ({ hotelId, pricePerNight }: Props) => {
                   <DatePicker
                     required
                     selected={checkIn}
-                    onChange={(date) => setValue("checkIn", date as Date)}
+                    onChange={(date) => {
+                      const newCheckIn = date as Date;
+                      setValue("checkIn", newCheckIn);
+                      if (newCheckIn && checkOut && newCheckIn >= checkOut) {
+                        const nextDay = new Date(newCheckIn.getTime() + 86400000);
+                        setValue("checkOut", nextDay);
+                      }
+                    }}
                     selectsStart
                     startDate={checkIn}
                     endDate={checkOut}
@@ -207,10 +214,10 @@ const GuestInfoForm = ({ hotelId, pricePerNight }: Props) => {
                     required
                     selected={checkOut}
                     onChange={(date) => setValue("checkOut", date as Date)}
-                    selectsStart
+                    selectsEnd
                     startDate={checkIn}
                     endDate={checkOut}
-                    minDate={minDate}
+                    minDate={checkIn ? new Date(checkIn.getTime() + 86400000) : minDate}
                     maxDate={maxDate}
                     placeholderText="Check-out Date"
                     className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
